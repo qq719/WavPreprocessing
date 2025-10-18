@@ -16,15 +16,21 @@ def parquet_to_spec_png(parquet_dir, parquet_file, png_dir):
 
         wav_file = io.BytesIO(df["audio"][i]["bytes"])
         sample_rate, samples = wavfile.read(wav_file)
-        freqs, times, sxx = signal.spectrogram(samples, sample_rate)
-    
+        if (samples.ndim > 1):
+            print("f[-] wav file needs to be mono")
+            return
+
+        freqs, times, zxx = signal.stft(samples, fs=sample_rate)
+        magnitude = 20 * np.log10(np.abs(zxx) + 1e-10)
+
         plt.figure(figsize=(10, 5), frameon=False)
         plt.axis('off')
-        plt.pcolormesh(times, freqs, np.log10(sxx), shading="gouraud")
+        plt.pcolormesh(times, freqs, magnitude, shading="gouraud")
         plt.savefig(path)
         plt.close()
-        print(f"[-] {parquet_file} -> {os.path.splitext(orig_name)[0]}.png")
         
+        print(f"[-] {parquet_file} -> {os.path.splitext(orig_name)[0]}.png")
+
 def main():
     parquet_dir = "./parquet_data/"
     png_dir = "./png_data/"

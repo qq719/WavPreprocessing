@@ -3,3 +3,8 @@
 
 # Virtual env
 .venv
+
+# Images
+./parquet_data/*
+./png_data/drone/*
+./png_data/other/*
