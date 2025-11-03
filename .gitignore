@@ -8,3 +8,6 @@
 ./parquet_data/*
 ./png_data/drone/*
 ./png_data/other/*
+
+.DS_Store
+venv/

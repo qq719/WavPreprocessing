@@ -8,11 +8,14 @@ from scipy import signal
 
 def parquet_to_spec_png(parquet_dir, parquet_file, png_dir):
     parquet_path = f"{parquet_dir}{parquet_file}"
+    parquet_id = parquet_file.split('-')[1]
     df = pd.read_parquet((parquet_path), engine = "pyarrow")
     for i in range(df["audio"].size):
         label = "drone/" if df["label"][i] == 1 else "other/"
         orig_name = df["audio"][i]["path"]
-        path = f"{png_dir}{label}{os.path.splitext(orig_name)[0]}.png"
+        path = f"{png_dir}{label}{os.path.splitext(orig_name)[0]}-{parquet_id}.png"
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
         wav_file = io.BytesIO(df["audio"][i]["bytes"])
         sample_rate, samples = wavfile.read(wav_file)
@@ -29,11 +32,11 @@ def parquet_to_spec_png(parquet_dir, parquet_file, png_dir):
         plt.savefig(path)
         plt.close()
         
-        print(f"[-] {parquet_file} -> {os.path.splitext(orig_name)[0]}.png")
+        print(f"[-] {parquet_file} -> {os.path.splitext(orig_name)[0]}-{parquet_id}.png")
 
 def main():
-    parquet_dir = "./parquet_data/"
-    png_dir = "./png_data/"
+    parquet_dir = "../parquet_data/"
+    png_dir = "../png_data/"
     if not(os.path.isdir(parquet_dir)):
         print(f"[-] {parquet_dir} is missing")
         return
